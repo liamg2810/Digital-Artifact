@@ -1,7 +1,9 @@
 package mmu.liam.ac.uk.input;
 
+import mmu.liam.ac.uk.data.Persist;
 import mmu.liam.ac.uk.data.User;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -19,24 +21,17 @@ public class Console {
 
         Scanner scanner = new Scanner(System.in);
         
-        System.out.println("Please enter your first name:");
-        var firstName = scanner.nextLine();
-
-        System.out.println("\nPlease enter your last name:");
-        var lastName = scanner.nextLine(); 
-        
-        System.out.println("\nPlease enter the name of your workplace:");
-        var workplace = scanner.nextLine(); 
-
-        System.out.println("\nPlease enter your job title:");
-        var jobTitle = scanner.nextLine();
-
-        var yearsAtJob = Utils.safeIntInput("\nPlease enter how many years you have worked at your job:", scanner);
-        scanner.nextLine();
-
-        System.out.println();
-
-        user = new User(firstName, lastName, workplace, jobTitle, yearsAtJob);
+        if (!Persist.check())
+            user = getUserFromInput(scanner);
+        else {
+            System.out.println("Loading user from file");
+            try {
+                user = Persist.getUser();
+            } catch (IOException e) {
+                System.out.println("Error loading user");
+                user = getUserFromInput(scanner);
+            }
+        }
 
         var option = -1;
         var cont = true;
@@ -60,6 +55,27 @@ public class Console {
         System.out.println("The program will exit now, goodbye!");
 
         scanner.close();
+    }
+
+    private User getUserFromInput(Scanner scanner) {
+        System.out.println("Please enter your first name:");
+        var firstName = scanner.nextLine();
+
+        System.out.println("\nPlease enter your last name:");
+        var lastName = scanner.nextLine(); 
+        
+        System.out.println("\nPlease enter the name of your workplace:");
+        var workplace = scanner.nextLine(); 
+
+        System.out.println("\nPlease enter your job title:");
+        var jobTitle = scanner.nextLine();
+
+        var yearsAtJob = Utils.safeIntInput("\nPlease enter how many years you have worked at your job:", scanner);
+        scanner.nextLine();
+
+        System.out.println();
+
+        return new User(firstName, lastName, workplace, jobTitle, yearsAtJob);
     }
 
     private void outputOptions() {
