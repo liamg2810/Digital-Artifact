@@ -17,17 +17,24 @@ public class Console {
         options.add(new UserOption("Hear words of encouragement", this::outputWordsOfEncouragement));
         options.add(new UserOption("See how many years until retirement", this::outputYearsToRetirement));
 
-        var firstName = IO.readln("Please enter your first name:\n");
-        var lastName = IO.readln("Please enter your last name:\n");
-        var workplace = IO.readln("Please enter the name of your workplace:\n");
-        var jobTitle = IO.readln("Please enter your job title:\n");
-
         Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Please enter your first name:");
+        var firstName = scanner.nextLine();
 
-        IO.println("Please enter the number of years you have worked there:");
+        System.out.println("\nPlease enter your last name:");
+        var lastName = scanner.nextLine(); 
+        
+        System.out.println("\nPlease enter the name of your workplace:");
+        var workplace = scanner.nextLine(); 
 
-        var yearsAtJob = scanner.nextInt();
+        System.out.println("\nPlease enter your job title:");
+        var jobTitle = scanner.nextLine();
+
+        var yearsAtJob = Utils.safeIntInput("\nPlease enter how many years you have worked at your job:", scanner);
         scanner.nextLine();
+
+        System.out.println();
 
         user = new User(firstName, lastName, workplace, jobTitle, yearsAtJob);
 
@@ -37,39 +44,43 @@ public class Console {
         while (cont) {
             outputOptions();
 
-            do {
-                option = scanner.nextInt() - 1;
-                scanner.nextLine();
-
+            do {                
+                option = Utils.safeIntInput(String.format("Please enter an option (1 to %d)", options.size()), scanner) - 1;
+                
                 if (option < 0 || option >= options.size())
-                    IO.println(String.format("Invalid option %d. Please enter a number between 1 and %d", option, options.size()));
+                    System.out.println(String.format("Invalid option %d. Please enter a number between 1 and %d", option + 1, options.size()));
             } while (option < 0 || option >= options.size());
 
             options.get(option).method().run();
 
-            cont = IO.readln("Do you wish to continue (Y/N)").equalsIgnoreCase("Y");
+            System.out.println("Enter 'e' to exit. Otherwise the program will continue.");
+            cont = !scanner.nextLine().equalsIgnoreCase("e");
         }
+
+        System.out.println("The program will exit now, goodbye!");
+
+        scanner.close();
     }
 
     private void outputOptions() {
         for (int i = 0; i < options.size(); i++) {
-            IO.println(String.format("%d. %s", i + 1, options.get(i).name()));
+            System.out.println(String.format("%d. %s", i + 1, options.get(i).name()));
         }
     }
 
     private void outputFullName() {
-        IO.println(String.format("Your name is %s", user.getFullName()));
+        System.out.println(String.format("Your name is %s", user.getFullName()));
     }
 
     private void outputWorkplace() {
-        IO.println(String.format("You work at %s", user.getWorkplace()));
+        System.out.println(String.format("You work at %s", user.getWorkplace()));
     }
 
     private void outputYearsToRetirement() {
-        IO.println(String.format("You still have %s years to retirement", user.getYearsToRetirement()));
+        System.out.println(String.format("Most people work for 35 years so you have %s to go.", user.getYearsToRetirement()));
     }
 
     private void outputWordsOfEncouragement() {
-        IO.println(user.wordsOfEncouragement());
+        System.out.println(user.wordsOfEncouragement());
     }
 }

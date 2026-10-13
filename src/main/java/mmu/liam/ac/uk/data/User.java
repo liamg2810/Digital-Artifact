@@ -34,7 +34,7 @@ public class User {
     }
 
     public String getYearsToRetirement() {
-        return String.valueOf(64 - yearsWorking);
+        return String.valueOf(35 - yearsWorking);
     }
 
     public String wordsOfEncouragement() {
@@ -43,5 +43,22 @@ public class User {
         var ix = rng.nextInt(wordsOfEncouragement.size());
 
         return wordsOfEncouragement.get(ix);
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    
+    public String getLastName() {
+        return lastName;
+    }
+
+    public int getYearsAtJob() {
+        return yearsWorking;
+    }
+
+    public String getJobTitle() {
+        return jobTitle;
     }
 }
