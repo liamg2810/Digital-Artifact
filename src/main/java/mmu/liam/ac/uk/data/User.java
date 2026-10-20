@@ -10,7 +10,7 @@ public class User {
     public String jobTitle;
     public int yearsWorking;
 
-    private final ArrayList<String> wordsOfEncouragement = new ArrayList<String>();
+    private final ArrayList<String> wordsOfEncouragement = new ArrayList<>();
 
     public User(String firstName, String lastName, String workplace, String jobTitle, int yearsWorking) {
         this.firstName = firstName;

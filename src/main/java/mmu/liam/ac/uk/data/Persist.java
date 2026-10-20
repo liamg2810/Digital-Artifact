@@ -5,13 +5,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Persist {
-    private static final String path = "C:\\Data\\User.txt";
+    private static final String directory = "C:\\Data";
+    private static final String file = "User.txt";
     
     public static boolean check() {
-        File f = new File(path);
+        Path path = Paths.get(directory, file);
+
+        File f = path.toFile();
 
         return f.exists() && !f.isDirectory();
     }
@@ -19,8 +27,11 @@ public class Persist {
     public static User getUser() throws IOException {
         if (!check())
             return null;
-        
-        var br = new BufferedReader(new FileReader(path));
+
+
+        Path path = Paths.get(directory, file);
+
+        var br = new BufferedReader(new FileReader(path.toString()));
 
         var data = new ArrayList<String>();
 
@@ -50,11 +61,15 @@ public class Persist {
     }
 
     public static void save(User user) throws IOException {
-        var txt = String.format("%s\n%s\n%s\n%s\n%d", user.getFirstName(), user.getLastName(), user.getWorkplace(), user.getJobTitle(), user.getYearsAtJob());
-    
-        var f = new FileWriter(path);
+        var lines = Arrays.asList(user.getFirstName(), user.getLastName(), user.getWorkplace(), user.getJobTitle(), String.valueOf(user.getYearsAtJob()));
 
-        f.write(txt);
-        f.close();
+        Path path = Paths.get(directory, file);
+
+        var dir = Path.of(directory);
+        if (!dir.toFile().exists()) {
+            Files.createDirectory(dir);
+        }
+
+        Files.write(path, lines, StandardCharsets.UTF_8);
     }
 }

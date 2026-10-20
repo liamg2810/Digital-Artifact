@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class Console {
     private final User user;
 
-    private final ArrayList<UserOption> options = new ArrayList<UserOption>();
+    private final ArrayList<UserOption> options = new ArrayList<>();
 
     public Console() {
         options.add(new UserOption("See your full name", this::outputFullName));
@@ -20,54 +20,78 @@ public class Console {
         options.add(new UserOption("See how many years until retirement", this::outputYearsToRetirement));
 
         Scanner scanner = new Scanner(System.in);
-        
+
+        User user1;
         if (!Persist.check())
-            user = getUserFromInput(scanner);
+            user1 = getUserFromInput(scanner);
         else {
             System.out.println("Loading user from file");
             try {
-                user = Persist.getUser();
+                user1 = Persist.getUser();
+                assert user1 != null;
             } catch (IOException e) {
-                System.out.println("Error loading user");
-                user = getUserFromInput(scanner);
+                System.out.print("Error loading user.\n");
+                user1 = getUserFromInput(scanner);
+            } catch (RuntimeException e) {
+                System.out.print("User loaded was null.");
+                user1 = getUserFromInput(scanner);
             }
+        }
+        user = user1;
+
+        try {
+            Persist.save(user);
+        } catch (IOException e) {
+            System.out.print("Error saving user\n");
         }
 
         var option = -1;
         var cont = true;
 
-        while (cont) {
+        while (true) {
             outputOptions();
 
-            do {                
-                option = Utils.safeIntInput(String.format("Please enter an option (1 to %d)", options.size()), scanner) - 1;
-                
+            do {
+                System.out.print("Enter 'e' to exit. Otherwise the program will continue.\n");
+
+                while (!scanner.hasNextInt()) {
+                    var line = scanner.nextLine();
+                    if (line.equalsIgnoreCase("e")) {
+                        cont = false;
+                        break;
+                    }
+                }
+
+                if (!cont) break;
+
+                option = scanner.nextInt() - 1;
+                scanner.nextLine();
+
                 if (option < 0 || option >= options.size())
-                    System.out.println(String.format("Invalid option %d. Please enter a number between 1 and %d", option + 1, options.size()));
+                    System.out.printf("Invalid option %d. Please enter a number between 1 and %d%n", option + 1, options.size());
             } while (option < 0 || option >= options.size());
 
-            options.get(option).method().run();
+            if (!cont) break;
 
-            System.out.println("Enter 'e' to exit. Otherwise the program will continue.");
-            cont = !scanner.nextLine().equalsIgnoreCase("e");
+            options.get(option).method().run();
         }
 
-        System.out.println("The program will exit now, goodbye!");
+        System.out.print("The program will exit now, goodbye!\n");
 
         scanner.close();
     }
 
     private User getUserFromInput(Scanner scanner) {
-        System.out.println("Please enter your first name:");
+        System.out.print("Please enter your first name:\n");
         var firstName = scanner.nextLine();
 
-        System.out.println("\nPlease enter your last name:");
+        System.out.print("\nPlease enter your last name:\n");
         var lastName = scanner.nextLine(); 
         
-        System.out.println("\nPlease enter the name of your workplace:");
+        System.out.print("\nPlease enter the name of your workplace:\n");
         var workplace = scanner.nextLine(); 
 
-        System.out.println("\nPlease enter your job title:");
+        System.out.print("\nPlease enter your job title:\n");
         var jobTitle = scanner.nextLine();
 
         var yearsAtJob = Utils.safeIntInput("\nPlease enter how many years you have worked at your job:", scanner);
@@ -80,20 +104,20 @@ public class Console {
 
     private void outputOptions() {
         for (int i = 0; i < options.size(); i++) {
-            System.out.println(String.format("%d. %s", i + 1, options.get(i).name()));
+            System.out.printf("%d. %s%n", i + 1, options.get(i).name());
         }
     }
 
     private void outputFullName() {
-        System.out.println(String.format("Your name is %s", user.getFullName()));
+        System.out.printf("Your name is %s%n", user.getFullName());
     }
 
     private void outputWorkplace() {
-        System.out.println(String.format("You work at %s", user.getWorkplace()));
+        System.out.printf("You work at %s%n", user.getWorkplace());
     }
 
     private void outputYearsToRetirement() {
-        System.out.println(String.format("Most people work for 35 years so you have %s to go.", user.getYearsToRetirement()));
+        System.out.printf("Most people work for 35 years so you have %s to go.%n", user.getYearsToRetirement());
     }
 
     private void outputWordsOfEncouragement() {

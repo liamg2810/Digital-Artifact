@@ -1,1 +1,1 @@
-rootProject.name = "Week-2-Lab"
+rootProject.name = "Digital-Artifact"
